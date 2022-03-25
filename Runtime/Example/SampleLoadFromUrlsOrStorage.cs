@@ -13,6 +13,7 @@ namespace UnityImageLoader
 	{
 		// tips and tricks google drive : https://www.labnol.org/internet/direct-links-for-google-drive/28356/
 		// google drive https://drive.google.com/uc?export=download&id=1GDbwdE3HVIqjQbNB9MpZFNhQgpBMWagW
+		// https://drive.google.com/uc?export=download&id=11_DnGOzADaKjB4_LTDLY5hjUOp_tnV-c
 		// google drive https://docs.google.com/document/d/DOC_FILE_ID/export?format=doc
 		// amazon https://s3.amazonaws.com/omeka-net/59415/archive/files/519627986585e21157376c430ab085d6.png?AWSAccessKeyId=AKIAI3ATG3OSQLO5HGKA&Expires=1625097600&Signature=ZTHZlYJlXmJqLR4hyiU6sT0TtWQ%3D
 		[SerializeField] private List<string> urls = new List<string>();

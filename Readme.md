@@ -1,3 +1,5 @@
+![CodeCoverage](./~Badges/badge_combined.svg)
+
 # Async Load Texture
 
 Load texture for images completly asynchronyously.
@@ -7,6 +9,8 @@ Load texture for images completly asynchronyously.
 2) MRTK (Mixed Reality Toolkit by Microsoft) - see https://github.com/microsoft/MixedRealityToolkit-Unity
 
 # Usage
+
+See example : [Example](./Runtime/Example/SampleLoadFromUrlsOrStorage.cs)
 
 1) Create instance of DiskCache (custom or one of the provided).
 2) Create instance of LoadImagesAsync

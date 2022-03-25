@@ -72,6 +72,57 @@ namespace UnityImageLoader
 			});
 		}
 
+		[Timeout(5 * 1000)]
+		[UnityTest]
+		public IEnumerator LoadTwoImages_OnCleanUpRemoveWithTimespan()
+		{
+			return UniTask.ToCoroutine(async () =>
+			{
+				var diskCache = new MrtkDiskCacheProvider();
+				diskCache.SetInitialCachePath(testCacheRoot);
+				diskCache.RemoveCacheFolder();
+
+				var LoadImagesAsync = new LoadImagesAsync();
+				LoadImagesAsync.SetDiskLoader(diskCache);
+
+				var url1 = "https://drive.google.com/uc?export=download&id=1GDbwdE3HVIqjQbNB9MpZFNhQgpBMWagW";
+				var path = diskCache.GetPath(url1);
+				Assert.IsNotNull(path);
+				Assert.IsTrue(path.Length > 0);
+
+				var texture =
+					await LoadImagesAsync.LoadImageAsync(Texture2D.blackTexture, url1, null, CancellationToken.None);
+				Assert.IsTrue(texture != null);
+				Assert.IsTrue(texture != Texture2D.blackTexture);
+				texture.SafeDestroy();
+				Assert.IsTrue(diskCache.FileExists(url1));
+
+
+				var url2 = "https://drive.google.com/uc?export=download&id=11_DnGOzADaKjB4_LTDLY5hjUOp_tnV-c";
+				path = diskCache.GetPath(url2);
+				Assert.IsNotNull(path);
+				Assert.IsTrue(path.Length > 0);
+
+				for (int i = 0; i < 1500; i++)
+				{
+					await UniTask.Yield();
+				}
+
+				texture =
+					await LoadImagesAsync.LoadImageAsync(Texture2D.blackTexture, url2, null, CancellationToken.None);
+				Assert.IsTrue(texture != null);
+				Assert.IsTrue(texture != Texture2D.blackTexture);
+				texture.SafeDestroy();
+				Assert.IsTrue(diskCache.FileExists(url2));
+
+				diskCache.RemoveOldCaches(diskCache.GetCacheFolder(), TimeSpan.Zero);
+				Assert.IsFalse(diskCache.FileExists(url1));
+
+				diskCache.RemoveCacheFolder();
+			});
+		}
+
+
 		[UnityTest]
 		public IEnumerator DiskCacheShouldStoreAndRetrieve()
 		{
@@ -94,6 +145,9 @@ namespace UnityImageLoader
 				diskCache.Set(url, bytes);
 				await UniTask.Yield();
 				Assert.IsTrue(diskCache.FileExists(url));
+
+				var bytesFromCache = diskCache.Get(url);
+				Assert.IsTrue(bytesFromCache != null);
 
 				diskCache.RemoveCacheFolder();
 			});

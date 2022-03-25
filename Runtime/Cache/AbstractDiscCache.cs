@@ -57,11 +57,11 @@ namespace UnityImageLoader.Cache
 			DirectoryInfo folder = new DirectoryInfo(cachePath);
 			FileInfo[] files = folder.GetFiles();
 			var dateTimeNow = DateTime.Now;
-			var totalMinutes = liveSpan.TotalMinutes;
+			var totalMinutes = liveSpan.TotalSeconds;
 			for (int i = 0; i < files.Length; i++)
 			{
-				var differences = files[i].LastAccessTime - dateTimeNow;
-				if (differences.TotalMinutes > totalMinutes)
+				var differences = dateTimeNow -files[i].LastAccessTime;
+				if (differences.TotalSeconds > totalMinutes)
 				{
 					files[i].Delete();
 				}
@@ -121,33 +121,6 @@ namespace UnityImageLoader.Cache
 			}
 
 			return fullUri;
-		}
-	}
-
-	public class FileDateSort : IComparer
-	{
-		public int Compare(object x, object y)
-		{
-			if (x == null && y == null)
-			{
-				return 0;
-			}
-
-			if (x == null)
-			{
-				return -1;
-			}
-
-			if (y == null)
-			{
-				return 1;
-			}
-
-			FileInfo xInfo = (FileInfo) x;
-			FileInfo yInfo = (FileInfo) y;
-
-
-			return xInfo.LastAccessTime.CompareTo(yInfo.LastAccessTime);
 		}
 	}
 }
