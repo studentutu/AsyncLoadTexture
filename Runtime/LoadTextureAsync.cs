@@ -45,16 +45,27 @@ namespace UnityTextureLoader
 			Dictionary<string, string> headers,
 			CancellationToken token)
 		{
+			await UniTask.SwitchToThreadPool();
+			if (token.IsCancellationRequested)
+			{
+				return null;
+			}
+
+			var systemUri = new System.Uri(_discCache.GetPath(url));
 			if (!_discCache.FileExists(url))
 			{
-				var bytes = await LoadBytesViaUrl(url, headers);
-				if (bytes != null && !token.IsCancellationRequested)
+				var bytes = await LoadBytesViaUrl(url, headers, token);
+				if (token.IsCancellationRequested)
+				{
+					return null;
+				}
+
+				if (bytes != null)
 				{
 					_discCache.Set(url, bytes);
 				}
 			}
 
-			var systemUri = new System.Uri(_discCache.GetPath(url));
 			var texture = await TextureExtensions.LoadTextureAsync(systemUri.AbsoluteUri, token);
 			if (texture == null)
 			{
@@ -67,9 +78,21 @@ namespace UnityTextureLoader
 		/// <summary>
 		/// Will fetch and accept both base64 or byte[] data.
 		/// </summary>
-		public async UniTask<byte[]> LoadBytesViaUrl(string url, Dictionary<string, string> headers)
+		public async UniTask<byte[]> LoadBytesViaUrl(string url, Dictionary<string, string> headers,
+			CancellationToken token)
 		{
+			await UniTask.SwitchToMainThread();
+			if (token.IsCancellationRequested)
+			{
+				return null;
+			}
+
 			var response = await Rest.GetAsync(url, headers, 20, null, true);
+			if (token.IsCancellationRequested)
+			{
+				return null;
+			}
+
 			if (!response.Successful)
 			{
 #pragma warning disable CS0618

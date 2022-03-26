@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -22,17 +19,20 @@ public static class TextureExtensions
 			return null;
 		}
 
-		var request = UnityWebRequestTexture.GetTexture(fileUri, true);
-		await request.SendWebRequest();
-		if (token.IsCancellationRequested)
+		Texture2D result = null;
+		using (var request = UnityWebRequestTexture.GetTexture(fileUri, true))
 		{
-			return null;
+			await request.SendWebRequest();
+			if (token.IsCancellationRequested)
+			{
+				return null;
+			}
+
+			//texture loaded
+			result = DownloadHandlerTexture.GetContent(request);
 		}
 
-		//texture loaded
-		var texture = DownloadHandlerTexture.GetContent(request);
-		request.Dispose();
-		return texture;
+		return result;
 	}
 
 	public static void SafeDestroy(this Texture createdTexture)

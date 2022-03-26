@@ -4,6 +4,7 @@ using UnityEngine.TestTools;
 
 namespace UnityTextureLoader
 {
+	// TODO: Benchmark against Player Prefs and base 64
 	public class Benchmark
 	{
 		private string testCacheRoot = "testCacheRoot";

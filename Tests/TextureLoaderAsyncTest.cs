@@ -37,7 +37,7 @@ namespace UnityTextureLoader
 				var url = "https://drive.google.com/uc?export=download&id=1GDbwdE3HVIqjQbNB9MpZFNhQgpBMWagW";
 				var testClass = new LoadTextureAsync();
 
-				var bytes = await testClass.LoadBytesViaUrl(url, null);
+				var bytes = await testClass.LoadBytesViaUrl(url, null, CancellationToken.None);
 				Assert.IsNotNull(bytes);
 			});
 		}
@@ -72,7 +72,7 @@ namespace UnityTextureLoader
 			});
 		}
 
-		[Timeout(5 * 1000)]
+		[Timeout(10 * 1000)]
 		[UnityTest]
 		public IEnumerator LoadTwoTextures_OnCleanUpRemoveWithTimespan()
 		{
@@ -103,7 +103,7 @@ namespace UnityTextureLoader
 				Assert.IsNotNull(path);
 				Assert.IsTrue(path.Length > 0);
 
-				for (int i = 0; i < 1500; i++)
+				for (int i = 0; i < 1000; i++)
 				{
 					await UniTask.Yield();
 				}
@@ -164,16 +164,19 @@ namespace UnityTextureLoader
 				"https://s3.amazonaws.com/omeka-net/59415/archive/files/519627986585e21157376c430ab085d6.png?AWSAccessKeyId=AKIAI3ATG3OSQLO5HGKA&Expires=1625097600&Signature=ZTHZlYJlXmJqLR4hyiU6sT0TtWQ%3D";
 
 			var path = diskCache.GetPath(testUrls);
+			var asUri = new System.Uri(path);
 
 			Assert.IsNotNull(path);
 			Assert.IsTrue(path.Length > 0);
-			Assert.IsTrue(path.StartsWith("file://"));
+			Assert.IsTrue(asUri.AbsoluteUri.StartsWith("file://"));
 
 			testUrls = "https://drive.google.com/uc?export=download&id=1GDbwdE3HVIqjQbNB9MpZFNhQgpBMWagW";
 			path = diskCache.GetPath(testUrls);
+			asUri = new System.Uri(path);
+
 			Assert.IsNotNull(path);
 			Assert.IsTrue(path.Length > 0);
-			Assert.IsTrue(path.StartsWith("file://"));
+			Assert.IsTrue(asUri.AbsoluteUri.StartsWith("file://"));
 		}
 	}
 }

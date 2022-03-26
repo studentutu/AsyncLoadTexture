@@ -13,6 +13,7 @@ namespace UnityTextureLoader.Cache
 	{
 		private static Dictionary<string, Regex> _listRegexTokens = new Dictionary<string, Regex>()
 		{
+			{"?AWSAccess", new Regex(".+(AWS[Aa]ccess)", RegexOptions.CultureInvariant | RegexOptions.Compiled)},
 			{"token", new Regex(".+([Tt]oken)", RegexOptions.CultureInvariant | RegexOptions.Compiled)},
 			{"expire", new Regex(".+([Ee]xpire)", RegexOptions.CultureInvariant | RegexOptions.Compiled)},
 			{"access", new Regex(".+([Aa]ccess)", RegexOptions.CultureInvariant | RegexOptions.Compiled)},
@@ -38,7 +39,6 @@ namespace UnityTextureLoader.Cache
 		{
 			var uri = new System.Uri(url);
 			var afterHost = uri.PathAndQuery;
-			afterHost = GetCachedKeyFromFullUrlWithToken(afterHost);
 			afterHost = RemoveAllTokens(afterHost);
 			var uniqueHash = Animator.StringToHash(System.Uri.EscapeUriString(afterHost));
 			return uniqueHash.ToString();
@@ -76,27 +76,6 @@ namespace UnityTextureLoader.Cache
 			}
 		}
 
-		/// <summary>
-		/// Amazon specific filter. Trims Acess/expiration/signature
-		/// </summary>
-		/// <param name="fullUri"></param>
-		/// <returns></returns>
-		public static string GetCachedKeyFromFullUrlWithToken(string fullUri)
-		{
-			if (string.IsNullOrEmpty(fullUri))
-			{
-				return null;
-			}
-
-			var indexOf = fullUri.IndexOf("?AWS", StringComparison.InvariantCulture);
-			if (indexOf < 0)
-			{
-				return fullUri;
-			}
-
-			return fullUri.Substring(0, indexOf);
-		}
-
 		public static string RemoveAllTokens(string fullUri)
 		{
 			if (string.IsNullOrEmpty(fullUri))
@@ -113,9 +92,9 @@ namespace UnityTextureLoader.Cache
 					var match = regexForTokens.Value.Match(fullUri);
 					if (match.Success)
 					{
-						int currentlength = match.Value.Length;
+						int length = match.Value.Length;
 						next = true;
-						fullUri = match.Value.Substring(0, currentlength - regexForTokens.Key.Length);
+						fullUri = match.Value.Substring(0, length - regexForTokens.Key.Length);
 					}
 				}
 			}
