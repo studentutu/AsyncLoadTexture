@@ -2,7 +2,8 @@
 
 # Async Load Texture
 
-Load texture for images completly asynchronyously.
+Load texture for images completly asynchronyously, using Persistant Path cache or SD card Cache.
+Options to extend and use custom cache.
 
 # Dependency
 1) UniTask - see https://github.com/Cysharp/UniTask
