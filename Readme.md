@@ -3,8 +3,11 @@
 # Async Load Texture
 
 There are many custom solutions which require additional plugins and testing. 
+
 This is the straight forward solution, by cleverly using nothing but Unity tools and UniTask.
+
 Load texture for images completly asynchronyously, using Persistant Path cache or SD Card cache.
+
 Options to extend and use custom cache, as well as add custom regex to remove tokens/expiration/accesskey and other temporal data from your urls.
 
 # Dependency
