@@ -1,9 +1,9 @@
 using System.IO;
 using System;
 using System.Collections;
-using UnityImageLoader.Utils;
+using UnityTextureLoader.Extensions;
 
-namespace UnityImageLoader.Cache
+namespace UnityTextureLoader.Cache
 {
 	public class AndroidSDCardDiscCache : AbstractDiscCache
 	{
@@ -25,13 +25,14 @@ namespace UnityImageLoader.Cache
 			{
 				return;
 			}
+
 			EnsureRootDirectory(_cachePath);
 
 			string path = GetPath(url);
 
 			if (!File.Exists(path))
 			{
-				long avaliableBytes = AndroidDevice.GetSDCardAvaliableBytes();
+				long avaliableBytes = AndroidDevice.GetSdCardAvailableBytes();
 
 				if (data.Length > avaliableBytes)
 				{

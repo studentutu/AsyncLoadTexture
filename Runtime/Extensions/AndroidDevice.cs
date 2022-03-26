@@ -1,12 +1,22 @@
-﻿// hcq 2017/3/26
-
-using System;
+﻿using System;
 using UnityEngine;
 
-namespace UnityImageLoader.Utils
+namespace UnityTextureLoader.Extensions
 {
 	public static class AndroidDevice
 	{
+		private static bool IsAndroidRuntime()
+		{
+			bool result = false;
+#if UNITY_ANDROID
+			result = true;
+#endif
+#if UNITY_EDITOR
+			result = false;
+#endif
+			return result;
+		}
+
 #if UNITY_ANDROID
 		static AndroidJavaClass GetEnvironmentClass()
 		{
@@ -22,100 +32,111 @@ namespace UnityImageLoader.Utils
 		}
 #endif
 
-		public static long GetSDCardAvaliableBytes()
+		public static long GetSdCardAvailableBytes()
 		{
-#if UNITY_ANDROID && !UNITY_EDITOR
-            string path = GetSDCardPath();
+			string path = GetSDCardPath();
+			if (!IsAndroidRuntime())
+			{
+				throw new NotImplementedException();
+			}
+#if UNITY_ANDROID
+			using (AndroidJavaObject statFs = new AndroidJavaObject("android.os.StatFs", path))
+			{
+				long size;
+				if (GetBuildVersionSDKInt() >= 18)
+				{
+					size = statFs.Call<long>("getAvailableBlocksLong") * statFs.Call<long>("getBlockSizeLong");
+				}
+				else
+				{
+					size = statFs.Call<long>("getAvailableBlocks") * statFs.Call<long>("getBlockSize");
+				}
 
-            using (AndroidJavaObject statFs = new AndroidJavaObject("android.os.StatFs", path))
-            {
-                long size;
-                if (GetBuildVersionSDKInt() >= 18)
-                {
-                    size = statFs.Call<long>("getAvailableBlocksLong") * statFs.Call<long>("getBlockSizeLong");
-                }
-                else
-                {
-                    size = statFs.Call<long>("getAvailableBlocks") * statFs.Call<long>("getBlockSize");
-                }
-
-                return size;
-            }
-#else
-			throw new NotImplementedException();
+				return size;
+			}
 #endif
 		}
 
 		public static string GetSDCardPath()
 		{
-#if UNITY_ANDROID && !UNITY_EDITOR
-            using (AndroidJavaClass environment = GetEnvironmentClass())
-            {
-                using (AndroidJavaObject directory =
- environment.CallStatic<AndroidJavaObject>("getExternalStorageDirectory"))
-                {
-                    return directory.Call<string>("getPath");
-                }
-            }
-#else
-			throw new NotImplementedException();
+			if (!IsAndroidRuntime())
+			{
+				throw new NotImplementedException();
+			}
+#if UNITY_ANDROID
+			using (AndroidJavaClass environment = GetEnvironmentClass())
+			{
+				using (AndroidJavaObject directory =
+				       environment.CallStatic<AndroidJavaObject>("getExternalStorageDirectory"))
+				{
+					return directory.Call<string>("getPath");
+				}
+			}
 #endif
 		}
 
 		public static int GetBuildVersionSDKInt()
 		{
-#if UNITY_ANDROID && !UNITY_EDITOR
-            using (AndroidJavaClass buildVersionClass = new AndroidJavaClass("android.os.Build$VERSION"))
-            {
-                return buildVersionClass.GetStatic<int>("SDK_INT");
-            }
-#else
-			throw new NotImplementedException();
+			if (!IsAndroidRuntime())
+			{
+				throw new NotImplementedException();
+			}
+#if UNITY_ANDROID
+			using (AndroidJavaClass buildVersionClass = new AndroidJavaClass("android.os.Build$VERSION"))
+			{
+				return buildVersionClass.GetStatic<int>("SDK_INT");
+			}
 #endif
 		}
 
 		public static long GetMaxMemory()
 		{
-#if UNITY_ANDROID && !UNITY_EDITOR
-            using (AndroidJavaClass runtime = new AndroidJavaClass("java.lang.Runtime"))
-            {
-                using (AndroidJavaObject run = runtime.CallStatic<AndroidJavaObject>("getRuntime"))
-                {
-                    long maxMemory = run.Call<long>("maxMemory");
-                    return maxMemory;
-                }
-            }
-#elif (UNITY_EDITOR_WIN || UNITY_STANDALONE)
-			return SystemInfo.systemMemorySize;
+			if (!IsAndroidRuntime())
+			{
+				return SystemInfo.systemMemorySize;
+			}
+#if UNITY_ANDROID
+			using (AndroidJavaClass runtime = new AndroidJavaClass("java.lang.Runtime"))
+			{
+				using (AndroidJavaObject run = runtime.CallStatic<AndroidJavaObject>("getRuntime"))
+				{
+					long maxMemory = run.Call<long>("maxMemory");
+					return maxMemory;
+				}
+			}
 #endif
 		}
 
 		public static bool IsExistSDCard()
 		{
-#if UNITY_ANDROID && !UNITY_EDITOR
-            using (AndroidJavaClass environment = GetEnvironmentClass())
-            {
-                string state = environment.CallStatic<string>("getExternalStorageState");
-                return "mounted".Equals(state);
-            }
-#else
-			throw new NotImplementedException();
+			if (!IsAndroidRuntime())
+			{
+				return false;
+			}
+#if UNITY_ANDROID
+			using (AndroidJavaClass environment = GetEnvironmentClass())
+			{
+				string state = environment.CallStatic<string>("getExternalStorageState");
+				return "mounted".Equals(state);
+			}
 #endif
 		}
 
 		public static string GetExternalCacheDir()
 		{
-#if UNITY_ANDROID && !UNITY_EDITOR
-            using (AndroidJavaObject activity = GetActivity())
-            {
-                using (AndroidJavaObject cacheDir = activity.Call<AndroidJavaObject>("getExternalCacheDir"))
-                {
-                    string path = cacheDir.Call<string>("getPath");
-                    return path;
-                }
-            }
-#else
-			throw new NotImplementedException();
+			if (!IsAndroidRuntime())
+			{
+				return Application.persistentDataPath;
+			}
+#if UNITY_ANDROID
+			using (AndroidJavaObject activity = GetActivity())
+			{
+				using (AndroidJavaObject cacheDir = activity.Call<AndroidJavaObject>("getExternalCacheDir"))
+				{
+					string path = cacheDir.Call<string>("getPath");
+					return path;
+				}
+			}
 #endif
 		}
 	}

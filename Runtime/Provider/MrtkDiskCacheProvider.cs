@@ -2,7 +2,7 @@
 using System.IO;
 using UnityEngine;
 
-namespace UnityImageLoader.Cache
+namespace UnityTextureLoader.Cache
 {
 	/// <summary>
 	/// Optional Setup by calling SetInitialCachePath("customPath");

@@ -1,6 +1,6 @@
 {
-    "name": "com.MRTK.Imageloader",
-    "rootNamespace": "UnityImageLoader",
+    "name": "com.MRTK.UnityTextureLoader",
+    "rootNamespace": "UnityTextureLoader",
     "references": [
         "Microsoft.MixedReality.Toolkit",
         "UniTask"

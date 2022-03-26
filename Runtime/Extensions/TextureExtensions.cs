@@ -17,10 +17,21 @@ public static class TextureExtensions
 	public static async UniTask<Texture2D> LoadTextureAsync(string fileUri, CancellationToken token)
 	{
 		await UniTask.SwitchToMainThread();
+		if (token.IsCancellationRequested)
+		{
+			return null;
+		}
+
 		var request = UnityWebRequestTexture.GetTexture(fileUri, true);
 		await request.SendWebRequest();
+		if (token.IsCancellationRequested)
+		{
+			return null;
+		}
+
 		//texture loaded
 		var texture = DownloadHandlerTexture.GetContent(request);
+		request.Dispose();
 		return texture;
 	}
 

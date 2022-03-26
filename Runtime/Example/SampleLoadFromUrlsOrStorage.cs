@@ -5,9 +5,9 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityImageLoader.Cache;
+using UnityTextureLoader.Cache;
 
-namespace UnityImageLoader
+namespace UnityTextureLoader
 {
 	public class SampleLoadFromUrlsOrStorage : MonoBehaviour
 	{
@@ -21,7 +21,7 @@ namespace UnityImageLoader
 		[SerializeField] private bool ClearCache = false;
 		[SerializeField] private List<RawImage> arrayOfImages = new List<RawImage>();
 
-		[NonSerialized] private LoadImagesAsync _currentLoader = null;
+		[NonSerialized] private LoadTextureAsync _currentLoader = null;
 		private CancellationTokenSource Source = null;
 
 		private void OnValidate()
@@ -63,7 +63,7 @@ namespace UnityImageLoader
 		{
 			if (_currentLoader == null)
 			{
-				_currentLoader = new LoadImagesAsync();
+				_currentLoader = new LoadTextureAsync();
 				var loader = new MrtkDiskCacheProvider();
 				loader.SetInitialCachePath("testLoadAsyncFolder");
 				_currentLoader.SetDiskLoader(loader);

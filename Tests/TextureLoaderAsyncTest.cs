@@ -6,11 +6,11 @@ using Cysharp.Threading.Tasks;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-using UnityImageLoader.Cache;
+using UnityTextureLoader.Cache;
 
-namespace UnityImageLoader
+namespace UnityTextureLoader
 {
-	public class ImageLoaderAsyncTest
+	public class TextureLoaderAsyncTest
 	{
 		private string testCacheRoot = "testCacheRoot";
 
@@ -30,12 +30,12 @@ namespace UnityImageLoader
 
 		[UnityTest]
 		[Order(1)]
-		public IEnumerator LoadImagesAsync_ShouldLoadBytesFromUrl()
+		public IEnumerator LoadTextureAsync_ShouldLoadBytesFromUrl()
 		{
 			return UniTask.ToCoroutine(async () =>
 			{
 				var url = "https://drive.google.com/uc?export=download&id=1GDbwdE3HVIqjQbNB9MpZFNhQgpBMWagW";
-				var testClass = new LoadImagesAsync();
+				var testClass = new LoadTextureAsync();
 
 				var bytes = await testClass.LoadBytesViaUrl(url, null);
 				Assert.IsNotNull(bytes);
@@ -43,7 +43,7 @@ namespace UnityImageLoader
 		}
 
 		[UnityTest]
-		public IEnumerator LoadImagesAsync_LoadImage()
+		public IEnumerator LoadTextureAsync_LoadTexture_ShouldSucceed()
 		{
 			return UniTask.ToCoroutine(async () =>
 			{
@@ -51,8 +51,8 @@ namespace UnityImageLoader
 				diskCache.SetInitialCachePath(testCacheRoot);
 				diskCache.RemoveCacheFolder();
 
-				var LoadImagesAsync = new LoadImagesAsync();
-				LoadImagesAsync.SetDiskLoader(diskCache);
+				var loadTextureAsync = new LoadTextureAsync();
+				loadTextureAsync.SetDiskLoader(diskCache);
 
 				var url = "https://drive.google.com/uc?export=download&id=1GDbwdE3HVIqjQbNB9MpZFNhQgpBMWagW";
 				var path = diskCache.GetPath(url);
@@ -60,7 +60,7 @@ namespace UnityImageLoader
 				Assert.IsTrue(path.Length > 0);
 
 				var texture =
-					await LoadImagesAsync.LoadImageAsync(Texture2D.blackTexture, url, null, CancellationToken.None);
+					await loadTextureAsync.LoadImageAsync(Texture2D.blackTexture, url, null, CancellationToken.None);
 				Assert.IsTrue(texture != null);
 				Assert.IsTrue(texture != Texture2D.blackTexture);
 				texture.SafeDestroy();
@@ -74,7 +74,7 @@ namespace UnityImageLoader
 
 		[Timeout(5 * 1000)]
 		[UnityTest]
-		public IEnumerator LoadTwoImages_OnCleanUpRemoveWithTimespan()
+		public IEnumerator LoadTwoTextures_OnCleanUpRemoveWithTimespan()
 		{
 			return UniTask.ToCoroutine(async () =>
 			{
@@ -82,8 +82,8 @@ namespace UnityImageLoader
 				diskCache.SetInitialCachePath(testCacheRoot);
 				diskCache.RemoveCacheFolder();
 
-				var LoadImagesAsync = new LoadImagesAsync();
-				LoadImagesAsync.SetDiskLoader(diskCache);
+				var loadTextureAsync = new LoadTextureAsync();
+				loadTextureAsync.SetDiskLoader(diskCache);
 
 				var url1 = "https://drive.google.com/uc?export=download&id=1GDbwdE3HVIqjQbNB9MpZFNhQgpBMWagW";
 				var path = diskCache.GetPath(url1);
@@ -91,7 +91,7 @@ namespace UnityImageLoader
 				Assert.IsTrue(path.Length > 0);
 
 				var texture =
-					await LoadImagesAsync.LoadImageAsync(Texture2D.blackTexture, url1, null, CancellationToken.None);
+					await loadTextureAsync.LoadImageAsync(Texture2D.blackTexture, url1, null, CancellationToken.None);
 				Assert.IsTrue(texture != null);
 				Assert.IsTrue(texture != Texture2D.blackTexture);
 				texture.SafeDestroy();
@@ -109,7 +109,7 @@ namespace UnityImageLoader
 				}
 
 				texture =
-					await LoadImagesAsync.LoadImageAsync(Texture2D.blackTexture, url2, null, CancellationToken.None);
+					await loadTextureAsync.LoadImageAsync(Texture2D.blackTexture, url2, null, CancellationToken.None);
 				Assert.IsTrue(texture != null);
 				Assert.IsTrue(texture != Texture2D.blackTexture);
 				texture.SafeDestroy();
@@ -124,7 +124,7 @@ namespace UnityImageLoader
 
 
 		[UnityTest]
-		public IEnumerator DiskCacheShouldStoreAndRetrieve()
+		public IEnumerator DiskCache_ShouldStoreAndRetrieve()
 		{
 			return UniTask.ToCoroutine(async () =>
 			{

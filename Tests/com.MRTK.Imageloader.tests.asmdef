@@ -1,10 +1,10 @@
 {
-    "name": "com.MRTK.Imageloader.tests",
-    "rootNamespace": "UnityImageLoader",
+    "name": "com.MRTK.UnityTextureLoader.tests",
+    "rootNamespace": "UnityTextureLoader",
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "com.MRTK.Imageloader",
+        "com.MRTK.UnityTextureLoader",
         "UniTask"
     ],
     "includePlatforms": [

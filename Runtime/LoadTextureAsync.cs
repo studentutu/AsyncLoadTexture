@@ -4,14 +4,14 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Microsoft.MixedReality.Toolkit.Utilities;
 using UnityEngine;
-using UnityImageLoader.Cache;
+using UnityTextureLoader.Cache;
 
-namespace UnityImageLoader
+namespace UnityTextureLoader
 {
 	/// <summary>
 	/// Main class to load images. First setup _discCache. Later use LoadImageAsync
 	/// </summary>
-	public class LoadImagesAsync : IDisposable
+	public class LoadTextureAsync : IDisposable
 	{
 		private bool _disposed = false;
 		private AbstractDiscCache _discCache = null;
@@ -30,7 +30,7 @@ namespace UnityImageLoader
 			_discCache?.Dispose();
 		}
 
-		public LoadImagesAsync SetDiskLoader(AbstractDiscCache diskCache)
+		public LoadTextureAsync SetDiskLoader(AbstractDiscCache diskCache)
 		{
 			_discCache = diskCache;
 			return this;
@@ -54,7 +54,8 @@ namespace UnityImageLoader
 				}
 			}
 
-			var texture = await TextureExtensions.LoadTextureAsync(_discCache.GetPath(url), token);
+			var systemUri = new System.Uri(_discCache.GetPath(url));
+			var texture = await TextureExtensions.LoadTextureAsync(systemUri.AbsoluteUri, token);
 			if (texture == null)
 			{
 				texture = errorTexture;
@@ -63,6 +64,9 @@ namespace UnityImageLoader
 			return texture;
 		}
 
+		/// <summary>
+		/// Will fetch and accept both base64 or byte[] data.
+		/// </summary>
 		public async UniTask<byte[]> LoadBytesViaUrl(string url, Dictionary<string, string> headers)
 		{
 			var response = await Rest.GetAsync(url, headers, 20, null, true);

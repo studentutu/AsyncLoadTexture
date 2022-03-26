@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
-namespace UnityImageLoader.Cache
+namespace UnityTextureLoader.Cache
 {
 	public abstract class AbstractDiscCache : IDisposable
 	{
@@ -22,9 +22,9 @@ namespace UnityImageLoader.Cache
 		public abstract void Set(string url, byte[] data);
 		public abstract byte[] Get(string url);
 
-		public virtual bool FileExists(string url)
+		public virtual bool FileExists(string urlOrPath)
 		{
-			string path = GetPath(url);
+			string path = GetPath(urlOrPath);
 			var uri = new System.Uri(path);
 			var exists = File.Exists(path) || File.Exists(uri.AbsolutePath);
 			return exists;
@@ -60,7 +60,7 @@ namespace UnityImageLoader.Cache
 			var totalMinutes = liveSpan.TotalSeconds;
 			for (int i = 0; i < files.Length; i++)
 			{
-				var differences = dateTimeNow -files[i].LastAccessTime;
+				var differences = dateTimeNow - files[i].LastAccessTime;
 				if (differences.TotalSeconds > totalMinutes)
 				{
 					files[i].Delete();
