@@ -1,4 +1,4 @@
-![CodeCoverage](./~Badges/badge_combined.svg)
+![CodeCoverage](./Badges~/badge_combined.svg)
 
 # Async Load Texture
 
@@ -14,9 +14,9 @@ Options to extend and use custom cache.
 See example : [Example](./Runtime/Example/SampleLoadFromUrlsOrStorage.cs)
 
 1) Create instance of DiskCache (custom or one of the provided).
-2) Create instance of LoadImagesAsync
-3) Add DiskCache to LoadImagesAsync
-4) Use LoadImagesAsync(url,headers, cancellationToken)
+2) Create instance of LoadTextureAsync
+3) Add DiskCache to LoadTextureAsync
+4) Use LoadTextureAsync(url,headers, cancellationToken)
 
 # Important
 
