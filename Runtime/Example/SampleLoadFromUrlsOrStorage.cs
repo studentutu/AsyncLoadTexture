@@ -72,7 +72,7 @@ namespace UnityTextureLoader
 			Source = new CancellationTokenSource();
 			for (int i = 0; i < urls.Count; i++)
 			{
-				var texture = await _currentLoader.LoadImageAsync(Texture2D.redTexture, urls[i], null, Source.Token);
+				var texture = await _currentLoader.LoadTexture(Texture2D.redTexture, urls[i], null, Source.Token);
 				await UniTask.SwitchToMainThread();
 				arrayOfImages[i].texture = texture;
 			}

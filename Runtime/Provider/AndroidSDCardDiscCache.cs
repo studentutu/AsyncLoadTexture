@@ -19,14 +19,22 @@ namespace UnityTextureLoader.Cache
 			_cachePath = path;
 		}
 
+		public override string GetCacheFolder()
+		{
+			return _cachePath;
+		}
+
+		public override string GetPath(string url)
+		{
+			return Path.Combine(_cachePath, GetUniqueHashFrom(url));
+		}
+
 		public override void Set(string url, byte[] data)
 		{
 			if (data == null || data.Length <= 0)
 			{
 				return;
 			}
-
-			EnsureRootDirectory(_cachePath);
 
 			string path = GetPath(url);
 
@@ -37,16 +45,15 @@ namespace UnityTextureLoader.Cache
 				if (data.Length > avaliableBytes)
 				{
 					RemoveCacheFolder();
-					EnsureRootDirectory(_cachePath);
 
 					if (data.Length <= avaliableBytes)
 					{
-						File.WriteAllBytes(path, data);
+						base.Set(url, data);
 					}
 				}
 				else
 				{
-					File.WriteAllBytes(path, data);
+					base.Set(url, data);
 				}
 			}
 			else
@@ -55,31 +62,8 @@ namespace UnityTextureLoader.Cache
 			}
 		}
 
-		public override byte[] Get(string url)
-		{
-			string path = GetPath(url);
-			if (File.Exists(path))
-			{
-				byte[] data = File.ReadAllBytes(path);
-				File.SetLastAccessTime(path, DateTime.Now);
-				return data;
-			}
-
-			return null;
-		}
-
-		public override string GetPath(string url)
-		{
-			return Path.Combine(_cachePath, GetUniqueHashFrom(url));
-		}
-
 		public override void Dispose()
 		{
-		}
-
-		public override string GetCacheFolder()
-		{
-			return _cachePath;
 		}
 	}
 }

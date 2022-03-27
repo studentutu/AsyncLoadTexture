@@ -37,7 +37,7 @@ namespace UnityTextureLoader.Extensions
 			string path = GetSDCardPath();
 			if (!IsAndroidRuntime())
 			{
-				throw new NotImplementedException();
+				return GetMaxMemory();
 			}
 #if UNITY_ANDROID
 			using (AndroidJavaObject statFs = new AndroidJavaObject("android.os.StatFs", path))
@@ -61,7 +61,7 @@ namespace UnityTextureLoader.Extensions
 		{
 			if (!IsAndroidRuntime())
 			{
-				throw new NotImplementedException();
+				return GetExternalCacheDir();
 			}
 #if UNITY_ANDROID
 			using (AndroidJavaClass environment = GetEnvironmentClass())
@@ -79,7 +79,7 @@ namespace UnityTextureLoader.Extensions
 		{
 			if (!IsAndroidRuntime())
 			{
-				throw new NotImplementedException();
+				return 0;
 			}
 #if UNITY_ANDROID
 			using (AndroidJavaClass buildVersionClass = new AndroidJavaClass("android.os.Build$VERSION"))

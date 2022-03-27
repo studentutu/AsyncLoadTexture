@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using UnityEngine;
 
 namespace UnityTextureLoader.Cache
@@ -12,19 +11,9 @@ namespace UnityTextureLoader.Cache
 	{
 		private string _cachePath = Path.Combine(Application.persistentDataPath, "customAppRoot");
 
-
-		public override string GetPath(string url)
+		public override void SetInitialCachePath(string path)
 		{
-			var uniqueHash = GetUniqueHashFrom(url);
-			var pathUri = new System.Uri(FileExtensions.GetFilePathAsUrl(_cachePath));
-			var absolutePath = Path.Combine(pathUri.AbsolutePath, "image" + uniqueHash);
-			var uri = new System.Uri(absolutePath);
-			EnsureRootDirectory(_cachePath);
-			return uri.AbsoluteUri;
-		}
-
-		public override void Dispose()
-		{
+			_cachePath = Path.Combine(Application.persistentDataPath, path);
 		}
 
 		public override string GetCacheFolder()
@@ -32,68 +21,17 @@ namespace UnityTextureLoader.Cache
 			return _cachePath;
 		}
 
-		public override void SetInitialCachePath(string path)
+		public override string GetPath(string url)
 		{
-			_cachePath = Path.Combine(Application.persistentDataPath, path);
-		}
-
-		public override void Set(string url, byte[] data)
-		{
-			EnsureRootDirectory(_cachePath);
-			var getPath = GetPath(url);
-			bool mobileWrite = SafeWrite(getPath);
-			if (mobileWrite)
-			{
-				File.WriteAllBytes(getPath, data);
-				return;
-			}
-
-			var uri = new System.Uri(getPath);
-			File.WriteAllBytes(uri.AbsolutePath, data);
-		}
-
-		private bool SafeWrite(string path)
-		{
-			try
-			{
-				var byteFakes = new byte[32];
-				File.WriteAllBytes(path, byteFakes);
-				return true;
-			}
-#pragma warning disable CS0168
-			catch (Exception e)
-#pragma warning restore CS0168
-			{
-				// ignored
-			}
-
-			return false;
+			var uniqueHash = GetUniqueHashFrom(url);
+			var pathUri = new System.Uri(FileExtensions.GetFilePathAsUrl(_cachePath));
+			var uri = new System.Uri(Path.Combine(pathUri.AbsolutePath, "image" + uniqueHash));
+			return uri.AbsoluteUri;
 		}
 
 
-		public override byte[] Get(string url)
+		public override void Dispose()
 		{
-			var getPath = GetPath(url);
-			bool mobile = File.Exists(getPath);
-			if (mobile)
-			{
-				return GetInternalFile(getPath);
-			}
-
-			var uri = new System.Uri(getPath);
-			return GetInternalFile(uri.AbsolutePath);
-		}
-
-		private byte[] GetInternalFile(string path)
-		{
-			byte[] bytes = null;
-			if (File.Exists(path))
-			{
-				bytes = File.ReadAllBytes(path);
-				File.SetLastAccessTime(path, DateTime.Now);
-			}
-
-			return bytes;
 		}
 	}
 }

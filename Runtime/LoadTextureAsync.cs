@@ -5,6 +5,7 @@ using Cysharp.Threading.Tasks;
 using Microsoft.MixedReality.Toolkit.Utilities;
 using UnityEngine;
 using UnityTextureLoader.Cache;
+using UnityTextureLoader.Extensions;
 
 namespace UnityTextureLoader
 {
@@ -39,7 +40,19 @@ namespace UnityTextureLoader
 		/// <summary>
 		/// Will load fetch texture asynchronous. Using MRTK.Rest, File system to retrieve/store data.
 		/// </summary>
-		public async UniTask<Texture2D> LoadImageAsync(
+		/// <param name="url">Raw url with all tokens</param>
+		public async UniTask<Texture2D> LoadTexture(
+			Texture2D errorTexture,
+			string url)
+		{
+			return await LoadTexture(errorTexture, url, null, CancellationToken.None);
+		}
+
+		/// <summary>
+		/// Will load fetch texture asynchronous. Using MRTK.Rest, File system to retrieve/store data.
+		/// </summary>
+		/// <param name="url">Raw url with all tokens</param>
+		public async UniTask<Texture2D> LoadTexture(
 			Texture2D errorTexture,
 			string url,
 			Dictionary<string, string> headers,
@@ -51,8 +64,9 @@ namespace UnityTextureLoader
 				return null;
 			}
 
-			var systemUri = new System.Uri(_discCache.GetPath(url));
-			if (!_discCache.FileExists(url))
+			var urlWithNoToken = UrlExtensions.RemoveAllTokens(url);
+			var actualPath = new System.Uri(_discCache.GetPath(urlWithNoToken));
+			if (!_discCache.FileExists(urlWithNoToken))
 			{
 				var bytes = await LoadBytesViaUrl(url, headers, token);
 				if (token.IsCancellationRequested)
@@ -62,11 +76,11 @@ namespace UnityTextureLoader
 
 				if (bytes != null)
 				{
-					_discCache.Set(url, bytes);
+					_discCache.Set(urlWithNoToken, bytes);
 				}
 			}
 
-			var texture = await TextureExtensions.LoadTextureAsync(systemUri.AbsoluteUri, token);
+			var texture = await TextureExtensions.LoadTextureAsync(actualPath.AbsoluteUri, token);
 			if (texture == null)
 			{
 				texture = errorTexture;
@@ -78,7 +92,10 @@ namespace UnityTextureLoader
 		/// <summary>
 		/// Will fetch and accept both base64 or byte[] data.
 		/// </summary>
-		public async UniTask<byte[]> LoadBytesViaUrl(string url, Dictionary<string, string> headers,
+		/// <param name="url">Raw url with all tokens</param>
+		public async UniTask<byte[]> LoadBytesViaUrl(
+			string url,
+			Dictionary<string, string> headers,
 			CancellationToken token)
 		{
 			await UniTask.SwitchToMainThread();

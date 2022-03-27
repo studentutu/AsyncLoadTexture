@@ -1,9 +1,9 @@
-![CodeCoverage](./Badges~/badge_combined.svg)
+![CodeCoverage](./Badges~/badge_linecoverage.svg)
 
 # Async Load Texture
 
 There are many custom solutions which require additional plugins and testing. 
-This is the straight forward solution, by cleverly using nothing but Unity tools and UniTask.
+This is the straight forward solution, by cleverly using Unity tools and UniTask.
 Load texture for images completly asynchronyously, using Persistant Path cache or SD Card cache.
 Options to extend and use custom cache, as well as add custom regex to remove tokens/expiration/accesskey and other temporal data from your urls.
 
@@ -18,7 +18,7 @@ See example : [Example](./Runtime/Example/SampleLoadFromUrlsOrStorage.cs)
 1) Create instance of DiskCache (custom or one of the provided).
 2) Create instance of LoadTextureAsync
 3) Add DiskCache to LoadTextureAsync
-4) Use LoadTextureAsync(url,headers, cancellationToken)
+4) Use LoadTexture(errorTexture, url) or LoadTexture(errorTexture, url, headers, cancelationToken)
 
 # Important
 

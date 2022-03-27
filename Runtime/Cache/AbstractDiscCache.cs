@@ -1,49 +1,111 @@
-﻿// hcq 2017/3/23
-
-using System.IO;
+﻿using System.IO;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace UnityTextureLoader.Cache
 {
 	public abstract class AbstractDiscCache : IDisposable
 	{
-		private static Dictionary<string, Regex> _listRegexTokens = new Dictionary<string, Regex>()
-		{
-			{"?AWSAccess", new Regex(".+(AWS[Aa]ccess)", RegexOptions.CultureInvariant | RegexOptions.Compiled)},
-			{"token", new Regex(".+([Tt]oken)", RegexOptions.CultureInvariant | RegexOptions.Compiled)},
-			{"expire", new Regex(".+([Ee]xpire)", RegexOptions.CultureInvariant | RegexOptions.Compiled)},
-			{"access", new Regex(".+([Aa]ccess)", RegexOptions.CultureInvariant | RegexOptions.Compiled)},
-		};
-
 		public abstract void SetInitialCachePath(string path);
-		public abstract void Set(string url, byte[] data);
-		public abstract byte[] Get(string url);
+		public abstract string GetCacheFolder();
 
+		/// <param name="url">Use Url with no tokens</param>
+		public abstract string GetPath(string url);
+
+		/// <param name="url">Use Url with no tokens</param>
+		public virtual void Set(string url, byte[] data)
+		{
+			if (data == null || data.Length <= 0)
+			{
+				return;
+			}
+
+			EnsureRootDirectory(GetCacheFolder());
+			var getPath = GetPath(url);
+			bool mobileWrite = SafeWrite(getPath);
+			if (mobileWrite)
+			{
+				File.WriteAllBytes(getPath, data);
+				return;
+			}
+
+			var uri = new System.Uri(getPath);
+			File.WriteAllBytes(uri.AbsolutePath, data);
+		}
+
+		private bool SafeWrite(string path)
+		{
+			try
+			{
+				var byteFakes = new byte[32];
+				File.WriteAllBytes(path, byteFakes);
+				return true;
+			}
+#pragma warning disable CS0168
+			catch (Exception e)
+#pragma warning restore CS0168
+			{
+				// ignored
+			}
+
+			return false;
+		}
+
+		/// <param name="url">Use Url with no tokens</param>
+		public virtual byte[] Get(string url)
+		{
+			var uri = new System.Uri(GetPath(url));
+
+			bool isExistsAsPath = File.Exists(uri.AbsolutePath);
+			if (isExistsAsPath)
+			{
+				return GetInternal(uri.AbsolutePath);
+			}
+
+			bool isExistsAsUri = File.Exists(uri.AbsoluteUri);
+			if (isExistsAsUri)
+			{
+				return GetInternal(uri.AbsoluteUri);
+			}
+
+			return null;
+		}
+
+		private byte[] GetInternal(string pathToUse)
+		{
+			if (File.Exists(pathToUse))
+			{
+				byte[] data = File.ReadAllBytes(pathToUse);
+				File.SetLastAccessTime(pathToUse, DateTime.Now);
+				return data;
+			}
+
+			return null;
+		}
+
+		/// <param name="urlOrPath">Use Url with no tokens, or Path</param>
 		public virtual bool FileExists(string urlOrPath)
 		{
-			string path = GetPath(urlOrPath);
-			var uri = new System.Uri(path);
-			var exists = File.Exists(path) || File.Exists(uri.AbsolutePath);
+			var uri = new System.Uri(GetPath(urlOrPath));
+			var exists = File.Exists(uri.AbsoluteUri) || File.Exists(uri.AbsolutePath);
 			return exists;
 		}
 
-		public abstract string GetPath(string url);
-		public abstract void Dispose();
-		public abstract string GetCacheFolder();
-
+		/// <summary>
+		/// Transforms url with no tokens into unique hash string
+		/// </summary>
+		/// <param name="url">Use Url with no tokens</param>
 		protected string GetUniqueHashFrom(string url)
 		{
 			var uri = new System.Uri(url);
 			var afterHost = uri.PathAndQuery;
-			afterHost = RemoveAllTokens(afterHost);
 			var uniqueHash = Animator.StringToHash(System.Uri.EscapeUriString(afterHost));
 			return uniqueHash.ToString();
 		}
 
+		/// <summary>
+		/// Remove all cache entries recursively
+		/// </summary>
 		public void RemoveCacheFolder()
 		{
 			if (Directory.Exists(GetCacheFolder()))
@@ -52,6 +114,9 @@ namespace UnityTextureLoader.Cache
 			}
 		}
 
+		/// <summary>
+		/// Remove cache entries which are older than livespan
+		/// </summary>
 		public void RemoveOldCaches(string cachePath, TimeSpan liveSpan)
 		{
 			DirectoryInfo folder = new DirectoryInfo(cachePath);
@@ -76,30 +141,6 @@ namespace UnityTextureLoader.Cache
 			}
 		}
 
-		public static string RemoveAllTokens(string fullUri)
-		{
-			if (string.IsNullOrEmpty(fullUri))
-			{
-				return fullUri;
-			}
-
-			var next = true;
-			while (next)
-			{
-				next = false;
-				foreach (var regexForTokens in _listRegexTokens)
-				{
-					var match = regexForTokens.Value.Match(fullUri);
-					if (match.Success)
-					{
-						int length = match.Value.Length;
-						next = true;
-						fullUri = match.Value.Substring(0, length - regexForTokens.Key.Length);
-					}
-				}
-			}
-
-			return fullUri;
-		}
+		public abstract void Dispose();
 	}
 }
