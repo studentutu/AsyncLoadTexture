@@ -6,7 +6,7 @@ namespace UnityTextureLoader.Cache
 {
 	public abstract class AbstractDiscCache : IDisposable
 	{
-		public abstract void SetInitialCachePath(string path);
+		public abstract void SetInitialCachePath(string localPath);
 		public abstract string GetCacheFolder();
 
 		/// <param name="url">Use Url with no tokens</param>

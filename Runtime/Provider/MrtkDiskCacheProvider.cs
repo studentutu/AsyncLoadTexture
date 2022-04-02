@@ -9,11 +9,11 @@ namespace UnityTextureLoader.Cache
 	/// </summary>
 	public class MrtkDiskCacheProvider : AbstractDiscCache
 	{
-		private string _cachePath = Path.Combine(Application.persistentDataPath, "customAppRoot");
+		private string _cachePath = Path.Combine(Application.persistentDataPath, "customLocalRoot");
 
-		public override void SetInitialCachePath(string path)
+		public override void SetInitialCachePath(string localPath)
 		{
-			_cachePath = Path.Combine(Application.persistentDataPath, path);
+			_cachePath = Path.Combine(Application.persistentDataPath, localPath);
 		}
 
 		public override string GetCacheFolder()

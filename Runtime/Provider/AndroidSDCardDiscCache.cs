@@ -14,9 +14,9 @@ namespace UnityTextureLoader.Cache
 			SetInitialCachePath(AndroidDevice.GetExternalCacheDir() + "/image_cache/");
 		}
 
-		public override void SetInitialCachePath(string path)
+		public override void SetInitialCachePath(string localPath)
 		{
-			_cachePath = path;
+			_cachePath = localPath;
 		}
 
 		public override string GetCacheFolder()
