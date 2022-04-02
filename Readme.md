@@ -29,7 +29,8 @@ Be sure to check out if the target platform supports given cache folder : https:
 
 
 # Benchmark:
-Loading 50 1.9 Mb image (1600*1000) :
+Loading 50x 1.9Mb image (1600*1000) :
 1) Loading Raw Bytes from Disk Cache
 2) Loading Full texture
+
 ![Benchmark](./Badges~/benchmark.PNG)
