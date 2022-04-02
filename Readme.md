@@ -28,5 +28,6 @@ See example : [Example](./Runtime/Example/SampleLoadFromUrlsOrStorage.cs)
 Be sure to check out if the target platform supports given cache folder : https://docs.unity3d.com/ScriptReference/Application-persistentDataPath.html
 
 
-# TODO:
-Benchmark - UI + load Images from DiskCache vs UI + load images from PlayerPrefs (base 64)
+# Benchmark:
+
+![Benchmark](./Badges~/benchmark.PNG)

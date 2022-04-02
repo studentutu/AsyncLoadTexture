@@ -5,7 +5,6 @@ using Cysharp.Threading.Tasks;
 using NUnit.Framework;
 using Unity.PerformanceTesting;
 using UnityEngine;
-using UnityEngine.Profiling;
 using UnityEngine.TestTools;
 using UnityTextureLoader.Cache;
 using UnityTextureLoader.Extensions;
@@ -64,6 +63,7 @@ namespace UnityTextureLoader
 
 		[Order(2)]
 		[Test]
+		[NUnit.Framework.Category("DISK_CACHE")]
 		[Performance]
 		public void BenchMark_DiskCacheRetrieval_MRTK()
 		{
@@ -72,6 +72,7 @@ namespace UnityTextureLoader
 
 		[Order(3)]
 		[Test]
+		[NUnit.Framework.Category("DISK_CACHE")]
 		[Performance]
 		public void BenchMark_DiskCacheRetrieval_PlayerPrefs()
 		{
@@ -96,6 +97,7 @@ namespace UnityTextureLoader
 		}
 
 		[Order(4)]
+		[NUnit.Framework.Category("LoadingTexture")]
 		[UnityTest]
 		[Performance]
 		public IEnumerator BenchMark_TextureCreating_MRTK()
@@ -104,6 +106,7 @@ namespace UnityTextureLoader
 		}
 
 		[Order(5)]
+		[NUnit.Framework.Category("LoadingTexture")]
 		[UnityTest]
 		[Performance]
 		public IEnumerator BenchMark_TextureCreating_PlayerPrefs()
