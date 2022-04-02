@@ -5,6 +5,7 @@ using Cysharp.Threading.Tasks;
 using NUnit.Framework;
 using Unity.PerformanceTesting;
 using UnityEngine;
+using UnityEngine.Profiling;
 using UnityEngine.TestTools;
 using UnityTextureLoader.Cache;
 using UnityTextureLoader.Extensions;
@@ -122,8 +123,6 @@ namespace UnityTextureLoader
 			var loadTextureAsync = new LoadTextureAsync();
 			loadTextureAsync.SetDiskLoader(diskCache);
 
-			var allocated = new SampleGroup("Frames", SampleUnit.Millisecond);
-
 			Texture2D texture = null;
 			// Warmup
 			for (int i = 0; i < 5; i++)
@@ -132,20 +131,37 @@ namespace UnityTextureLoader
 				texture.SafeDestroy();
 			}
 
-			Stopwatch sw = new Stopwatch();
-			using (Measure.ProfilerMarkers(allocated))
+			for (int i = 0; i < GC.MaxGeneration; i++)
 			{
-				for (int i = 0; i < 100; i++)
+				GC.Collect(i, GCCollectionMode.Forced);
+			}
+
+			GC.Collect();
+			await UniTask.Yield();
+
+			var gc = new SampleGroup("GC", SampleUnit.Megabyte);
+			var maxUsed = new SampleGroup("MaxUsedMemory", SampleUnit.Megabyte);
+			var textureMemory = new SampleGroup("Texture", SampleUnit.Megabyte);
+			var toConvert = 1024 * 1024;
+
+			using (Measure.ProfilerMarkers(gc, maxUsed, textureMemory))
+			{
+				for (int i = 0; i < 50; i++)
 				{
-					sw.Reset();
-					sw.Start();
+					GC.Collect();
+					await UniTask.Yield();
+					Profiler.BeginSample(gc.Name);
 					using (Measure.Scope())
 					{
 						texture = await loadTextureAsync.LoadTexture(Texture2D.blackTexture, urlRaw);
-						Measure.Custom(allocated, sw.ElapsedMilliseconds);
+						var usedHeadp = Profiler.usedHeapSizeLong;
+						var maxUsedMem = Profiler.GetMonoUsedSizeLong();
+						var unused = Profiler.GetRuntimeMemorySizeLong(texture);
+						Profiler.EndSample();
+						Measure.Custom(gc, usedHeadp / toConvert);
+						Measure.Custom(maxUsed, maxUsedMem / toConvert);
+						Measure.Custom(textureMemory, unused / toConvert);
 					}
-
-					sw.Stop();
 
 					texture.SafeDestroy();
 				}
