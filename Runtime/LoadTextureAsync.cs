@@ -58,14 +58,28 @@ namespace UnityTextureLoader
 			Dictionary<string, string> headers,
 			CancellationToken token)
 		{
-			await UniTask.SwitchToThreadPool();
+			if (_discCache.SupportMultiThread())
+			{
+				await UniTask.SwitchToThreadPool();
+			}
+			else
+			{
+				await UniTask.SwitchToMainThread();
+			}
+
 			if (token.IsCancellationRequested)
 			{
 				return null;
 			}
 
 			var urlWithNoToken = UrlExtensions.RemoveAllTokens(url);
-			var actualPath = new System.Uri(_discCache.GetPath(urlWithNoToken));
+			var path = _discCache.GetPath(urlWithNoToken);
+			System.Uri actualPath = null;
+			if (!string.IsNullOrEmpty(path))
+			{
+				actualPath = new System.Uri(_discCache.GetPath(urlWithNoToken));
+			}
+
 			if (!_discCache.FileExists(urlWithNoToken))
 			{
 				var bytes = await LoadBytesViaUrl(url, headers, token);
@@ -80,7 +94,17 @@ namespace UnityTextureLoader
 				}
 			}
 
-			var texture = await TextureExtensions.LoadTextureAsync(actualPath.AbsoluteUri, token);
+			Texture2D texture = null;
+			if (actualPath != null)
+			{
+				texture = await TextureExtensions.LoadTextureAsync(actualPath.AbsoluteUri, token);
+			}
+			else
+			{
+				texture = await TextureExtensions.LoadTextureAsync(_discCache.Get(url), token);
+			}
+
+
 			if (texture == null)
 			{
 				texture = errorTexture;

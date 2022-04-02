@@ -14,6 +14,11 @@ namespace UnityTextureLoader.Cache
 			SetInitialCachePath(AndroidDevice.GetExternalCacheDir() + "/image_cache/");
 		}
 
+		public override bool SupportMultiThread()
+		{
+			return true;
+		}
+
 		public override void SetInitialCachePath(string localPath)
 		{
 			_cachePath = localPath;

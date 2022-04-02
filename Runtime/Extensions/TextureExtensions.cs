@@ -1,6 +1,7 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 using UnityEngine.Networking;
 
 public static class TextureExtensions
@@ -32,6 +33,20 @@ public static class TextureExtensions
 			result = DownloadHandlerTexture.GetContent(request);
 		}
 
+		return result;
+	}
+
+	public static async UniTask<Texture2D> LoadTextureAsync(byte[] bytes, CancellationToken token)
+	{
+		await UniTask.SwitchToMainThread();
+		if (token.IsCancellationRequested || bytes == null)
+		{
+			return null;
+		}
+
+		Texture2D result = new Texture2D(4, 4);
+		result.LoadRawTextureData(bytes);
+		result.Apply();
 		return result;
 	}
 

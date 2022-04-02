@@ -5,7 +5,8 @@
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "com.MRTK.UnityTextureLoader",
-        "UniTask"
+        "UniTask",
+        "Unity.PerformanceTesting"
     ],
     "includePlatforms": [
         "Editor"

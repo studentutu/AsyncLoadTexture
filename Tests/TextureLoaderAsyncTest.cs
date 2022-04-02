@@ -27,10 +27,11 @@ namespace UnityTextureLoader
 		[UnityTearDown]
 		public void ShutDown()
 		{
+			PlayerPrefs.DeleteAll();
+			PlayerPrefs.Save();
 		}
 
 		[UnityTest]
-		[Order(1)]
 		public IEnumerator LoadTextureAsync_ShouldLoadBytesFromUrl()
 		{
 			return UniTask.ToCoroutine(async () =>
@@ -44,11 +45,13 @@ namespace UnityTextureLoader
 		}
 
 		[UnityTest]
-		public IEnumerator LoadTextureAsync_DiskCacheGet_ShouldSucceed()
+		[TestCase(typeof(MrtkDiskCacheProvider), ExpectedResult = null)]
+		[TestCase(typeof(PlayerPrefsB64StringCache), ExpectedResult = null)]
+		public IEnumerator LoadTextureAsync_DiskCacheGet_ShouldSucceed(System.Type typeOfCache)
 		{
+			AbstractDiscCache diskCache = System.Activator.CreateInstance(typeOfCache) as AbstractDiscCache;
 			return UniTask.ToCoroutine(async () =>
 			{
-				var diskCache = new MrtkDiskCacheProvider();
 				diskCache.SetInitialCachePath(testCacheRoot);
 				diskCache.RemoveCacheFolder();
 
@@ -57,10 +60,6 @@ namespace UnityTextureLoader
 
 				var urlRaw = "https://drive.google.com/uc?export=download&id=1GDbwdE3HVIqjQbNB9MpZFNhQgpBMWagW";
 				var urlNoToken = UrlExtensions.RemoveAllTokens(urlRaw);
-
-				var path = diskCache.GetPath(urlNoToken);
-				Assert.IsNotNull(path);
-				Assert.IsTrue(path.Length > 0);
 
 				var texture =
 					await loadTextureAsync.LoadTexture(Texture2D.blackTexture, urlRaw);
@@ -77,11 +76,13 @@ namespace UnityTextureLoader
 
 		[Timeout(10 * 1000)]
 		[UnityTest]
-		public IEnumerator LoadTwoTextures_OnCleanUpRemoveWithTimespan()
+		[TestCase(typeof(MrtkDiskCacheProvider), ExpectedResult = null)]
+		public IEnumerator LoadTwoTextures_OnCleanUpRemoveWithTimespan(System.Type typeOfCache)
 		{
+			AbstractDiscCache diskCache = System.Activator.CreateInstance(typeOfCache) as AbstractDiscCache;
+
 			return UniTask.ToCoroutine(async () =>
 			{
-				AbstractDiscCache diskCache = new MrtkDiskCacheProvider();
 				diskCache.SetInitialCachePath(testCacheRoot);
 				diskCache.RemoveCacheFolder();
 
@@ -130,6 +131,7 @@ namespace UnityTextureLoader
 
 
 		[UnityTest]
+		[Order(1)]
 		public IEnumerator DiskCache_ShouldStoreAndRetrieve()
 		{
 			return UniTask.ToCoroutine(async () =>

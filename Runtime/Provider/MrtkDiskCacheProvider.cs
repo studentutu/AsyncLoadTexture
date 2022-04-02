@@ -11,6 +11,11 @@ namespace UnityTextureLoader.Cache
 	{
 		private string _cachePath = Path.Combine(Application.persistentDataPath, "customLocalRoot");
 
+		public override bool SupportMultiThread()
+		{
+			return true;
+		}
+
 		public override void SetInitialCachePath(string localPath)
 		{
 			_cachePath = Path.Combine(Application.persistentDataPath, localPath);

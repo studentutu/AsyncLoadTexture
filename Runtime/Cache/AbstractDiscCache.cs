@@ -6,6 +6,7 @@ namespace UnityTextureLoader.Cache
 {
 	public abstract class AbstractDiscCache : IDisposable
 	{
+		public abstract bool SupportMultiThread();
 		public abstract void SetInitialCachePath(string localPath);
 		public abstract string GetCacheFolder();
 
@@ -106,7 +107,7 @@ namespace UnityTextureLoader.Cache
 		/// <summary>
 		/// Remove all cache entries recursively
 		/// </summary>
-		public void RemoveCacheFolder()
+		public virtual void RemoveCacheFolder()
 		{
 			if (Directory.Exists(GetCacheFolder()))
 			{
@@ -117,7 +118,7 @@ namespace UnityTextureLoader.Cache
 		/// <summary>
 		/// Remove cache entries which are older than livespan
 		/// </summary>
-		public void RemoveOldCaches(string cachePath, TimeSpan liveSpan)
+		public virtual void RemoveOldCaches(string cachePath, TimeSpan liveSpan)
 		{
 			DirectoryInfo folder = new DirectoryInfo(cachePath);
 			FileInfo[] files = folder.GetFiles();
@@ -133,7 +134,7 @@ namespace UnityTextureLoader.Cache
 			}
 		}
 
-		public void EnsureRootDirectory(string cachePath)
+		public virtual void EnsureRootDirectory(string cachePath)
 		{
 			if (!Directory.Exists(cachePath))
 			{
